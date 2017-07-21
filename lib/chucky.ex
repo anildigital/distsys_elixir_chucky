@@ -1,18 +1,35 @@
+
+# This is a simple Supervisor that supervises Chucky.Server. 
+# Like Chucky.Server, Chucky.Supervisor is globally registered and 
+# therefore is registered with :global.
+
 defmodule Chucky do
-  @moduledoc """
-  Documentation for Chucky.
-  """
+  use Application
+  require Logger
 
-  @doc """
-  Hello world.
+  def start(type, _args) do
+    import Supervisor.Spec
+    children = [
+      worker(Chucky.Server, [])
+    ]
 
-  ## Examples
+    # Application type arguments
+    # For non-distributed applications, the value of type is usually :normal.
+    # For takeover and failover scenarios need other types
+    case type do
+      :normal ->
+        Logger.info("Application is started on #{node}")
+      {:takeover, old_node} ->
+        Logger.info("#{node} is taking over #{old_node}")
+      {:failover, old_node} ->
+        Logger.info("#{old_node} is failing over to #{node}")
+    end
 
-      iex> Chucky.hello
-      :world
+    opts = [strategy: :one_for_one, name: {:global, Chucky.Supervisor}]
+    Supervisor.start_link(children, opts)
+  end
 
-  """
-  def hello do
-    :world
+  def fact do
+    Chucky.Server.fact
   end
 end
