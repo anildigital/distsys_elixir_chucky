@@ -4,18 +4,37 @@
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `chucky` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:chucky, "~> 0.1.0"}
-  ]
-end
+```
+mix deps.get
+mix compile
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/chucky](https://hexdocs.pm/chucky).
+## Run in distributed mode as 
+```bash
+iex --sname a -pa _build/dev/lib/chucky/ebin --app chucky --erl "-config config/a.config"
+iex --sname b -pa _build/dev/lib/chucky/ebin --app chucky --erl "-config config/b.config"
+iex --sname c -pa _build/dev/lib/chucky/ebin --app chucky --erl "-config config/c.config"
+```
+You can then run on any node.
+
+```bash
+iex(a@Alchemist)1> Chucky.fact
+"Chuck Norris brushes his teeth with a mixture of iron shavings, industrial paint remover, and boner-grain alcohol."
+```
+
+See on which node application is started with following command
+
+```bash
+iex(a@Alchemist)1> Application.started_applications
+```
+
+Close the node a by pressing Ctrl+C twice and then see ```Application.started_applications``` on other nodes.
+Failover should happen and one of the node starts the application.
+
+Restart node a by executing 
+```
+iex --sname a -pa _build/dev/lib/chucky/ebin --app chucky --erl "-config config/a.config"
+```
+and it should takeover the application
+
 
